@@ -2,11 +2,11 @@ const fs = require('fs');
 const path = require('path');
 
 // ══════════════════════════════════════════════════════════════
-// Carga .env desde el directorio del script (sin dependencias)
+// Carga .env y .env.local (.env.local tiene prioridad)
 // ══════════════════════════════════════════════════════════════
-const ENV_PATH = path.join(__dirname, '.env');
-if (fs.existsSync(ENV_PATH)) {
-    fs.readFileSync(ENV_PATH, 'utf-8')
+const loadEnvFile = (filePath) => {
+    if (!fs.existsSync(filePath)) return;
+    fs.readFileSync(filePath, 'utf-8')
         .split('\n')
         .forEach(line => {
             const trimmed = line.trim();
@@ -15,9 +15,11 @@ if (fs.existsSync(ENV_PATH)) {
             if (eqIndex === -1) return;
             const key = trimmed.slice(0, eqIndex).trim();
             const value = trimmed.slice(eqIndex + 1).trim();
-            if (key && !(key in process.env)) process.env[key] = value;
+            if (key) process.env[key] = value;
         });
-}
+};
+loadEnvFile(path.join(__dirname, '.env'));
+loadEnvFile(path.join(__dirname, '.env.local'));
 
 // ══════════════════════════════════════════════════════════════
 // Carpetas a ignorar (dependencias, builds, caches, VCS, etc.)
@@ -253,7 +255,9 @@ filteredFiles.forEach(file => {
 
 const footer = `\n\n> **Líneas totales procesadas**: ${totalLinesProcessed}\n`;
 
-fs.writeFileSync(path.join(rootDir, 'RESUME.md'), header + fileDetails + footer);
+const OUTPUT_DIR = path.join(__dirname, 'output');
+fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+fs.writeFileSync(path.join(OUTPUT_DIR, 'RESUME.md'), header + fileDetails + footer);
 console.log(`✅ RESUME.md generado con éxito.`);
 console.log(`   📁 Archivos procesados: ${filteredFiles.length}`);
 console.log(`   📝 Líneas totales: ${totalLinesProcessed}`);

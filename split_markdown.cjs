@@ -3,11 +3,11 @@ const readline = require('readline');
 const path = require('path');
 
 // ══════════════════════════════════════════════════════════════
-// Carga .env desde el directorio del script (sin dependencias)
+// Carga .env y .env.local (.env.local tiene prioridad)
 // ══════════════════════════════════════════════════════════════
-const ENV_PATH = path.join(__dirname, '.env');
-if (fs.existsSync(ENV_PATH)) {
-    fs.readFileSync(ENV_PATH, 'utf-8')
+const loadEnvFile = (filePath) => {
+    if (!fs.existsSync(filePath)) return;
+    fs.readFileSync(filePath, 'utf-8')
         .split('\n')
         .forEach(line => {
             const trimmed = line.trim();
@@ -16,9 +16,11 @@ if (fs.existsSync(ENV_PATH)) {
             if (eqIndex === -1) return;
             const key = trimmed.slice(0, eqIndex).trim();
             const value = trimmed.slice(eqIndex + 1).trim();
-            if (key && !(key in process.env)) process.env[key] = value;
+            if (key) process.env[key] = value;
         });
-}
+};
+loadEnvFile(path.join(__dirname, '.env'));
+loadEnvFile(path.join(__dirname, '.env.local'));
 
 async function splitMarkdown(inputFile, maxLines = 10000) {
   if (!fs.existsSync(inputFile)) {
@@ -75,9 +77,7 @@ async function splitMarkdown(inputFile, maxLines = 10000) {
 }
 
 const args = process.argv.slice(2);
-const defaultResume = process.env.PROJECT_PATH
-    ? path.join(process.env.PROJECT_PATH, 'RESUME.md')
-    : 'RESUME.md';
+const defaultResume = path.join(__dirname, 'output', 'RESUME.md');
 const inputFile = args[0] || defaultResume;
 const maxLines = parseInt(args[1], 10) || 10000;
 

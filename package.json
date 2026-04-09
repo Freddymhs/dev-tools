@@ -4,9 +4,14 @@
   "description": "Genera un RESUME.md con todo el código fuente de un proyecto — útil para compartir contexto con una IA o trabajar offline.",
   "scripts": {
     "generate": "node generate_resume.cjs",
-    "split": "node split_markdown.cjs RESUME.md 10000",
-    "run-all": "node generate_resume.cjs && node split_markdown.cjs RESUME.md 10000"
+    "split": "node split_markdown.cjs output/RESUME.md 10000",
+    "generate-splited": "node generate_resume.cjs && node split_markdown.cjs output/RESUME.md 10000 && rm output/RESUME.md"
   },
-  "keywords": ["ai-context", "resume", "codebase", "offline"],
+  "keywords": [
+    "ai-context",
+    "resume",
+    "codebase",
+    "offline"
+  ],
   "license": "MIT"
 }
