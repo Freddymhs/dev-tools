@@ -1,0 +1,4 @@
+.env
+RESUME.md
+RESUME_part*.md
+.env.local
