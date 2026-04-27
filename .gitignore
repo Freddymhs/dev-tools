@@ -2,3 +2,17 @@
 .env.local
 output/*
 !output/.gitkeep
+
+# Claude
+.claude/settings.local.json
+.serena/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
