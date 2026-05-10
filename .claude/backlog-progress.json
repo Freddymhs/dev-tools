@@ -1,0 +1,11 @@
+{
+  "project": "dev-tools",
+  "tech": "Node.js CJS scripts, no framework, no deps",
+  "current_phase": "FASE_0",
+  "phases": {
+    "FASE_0": { "status": "in_progress", "name": "Cerrar cambios actuales", "tasks": 3, "total": 3 },
+    "FASE_1": { "status": "pending", "name": "TUI — Infraestructura", "tasks": 0, "total": 4 },
+    "FASE_2": { "status": "pending", "name": "TUI — Orquestador", "tasks": 0, "total": 4 },
+    "FASE_3": { "status": "pending", "name": "TUI — Polish", "tasks": 0, "total": 3 }
+  }
+}

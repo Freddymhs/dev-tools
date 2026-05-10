@@ -37,9 +37,11 @@ try {
   process.exit(1);
 }
 
-const OUTPUT_DIR = path.join(__dirname, "output");
+const OUTPUT_DIR = path.join(__dirname, "output", "media", "1_downloads");
+const LAST_VIDEO_FILE = path.join(__dirname, "output", "media", ".last_video");
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
+const beforeFiles = new Set(fs.readdirSync(OUTPUT_DIR));
 const outputTemplate = path.join(OUTPUT_DIR, "%(title)s.%(ext)s");
 
 console.log(`Descargando: ${url}`);
@@ -47,4 +49,11 @@ execSync(
   `yt-dlp -f "bestvideo[height<=720]+bestaudio/best[height<=720]" -o "${outputTemplate}" "${url}"`,
   { stdio: "inherit" }
 );
-console.log("✅ Descarga completada en output/");
+
+const newFile = fs.readdirSync(OUTPUT_DIR).find((f) => !beforeFiles.has(f));
+if (newFile) {
+  fs.writeFileSync(LAST_VIDEO_FILE, path.join(OUTPUT_DIR, newFile));
+  console.log(`📌 Guardado en .last_video: ${newFile}`);
+}
+
+console.log("✅ Descarga completada en output/media/1_downloads/");

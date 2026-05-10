@@ -23,10 +23,17 @@ const loadEnvFile = (filePath) => {
 loadEnvFile(path.join(__dirname, ".env"));
 loadEnvFile(path.join(__dirname, ".env.local"));
 
-const videoPath = process.env.VIDEO_PATH;
+const LAST_VIDEO_FILE = path.join(__dirname, "output", "media", ".last_video");
+const PARTS_DIR = path.join(__dirname, "output", "media", "2_parts");
+
+let videoPath = process.env.VIDEO_PATH;
+if (!videoPath && fs.existsSync(LAST_VIDEO_FILE)) {
+  videoPath = fs.readFileSync(LAST_VIDEO_FILE, "utf-8").trim();
+  console.log(`Usando .last_video: ${videoPath}`);
+}
 
 if (!videoPath) {
-  console.error("Falta VIDEO_PATH en .env.local");
+  console.error("Falta VIDEO_PATH en .env.local o ejecutar npm run download primero");
   process.exit(1);
 }
 
@@ -37,9 +44,10 @@ if (!fs.existsSync(absolutePath)) {
   process.exit(1);
 }
 
+fs.mkdirSync(PARTS_DIR, { recursive: true });
+
 const ext = path.extname(absolutePath);
 const baseName = path.basename(absolutePath, ext);
-const dir = path.dirname(absolutePath);
 
 const durationRaw = execSync(
   `ffmpeg -i "${absolutePath}" 2>&1 | grep Duration`
@@ -74,7 +82,7 @@ console.log(`${partsCount} partes de ~${formatTime(partDuration)}`);
 
 for (let i = 0; i < partsCount; i++) {
   const start = i * partDuration;
-  const outputFile = path.join(dir, `${baseName}_parte${i + 1}${ext}`);
+  const outputFile = path.join(PARTS_DIR, `${baseName}_parte${i + 1}${ext}`);
   const isLast = i === partsCount - 1;
 
   const cmd = isLast

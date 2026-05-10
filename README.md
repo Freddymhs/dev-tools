@@ -1,31 +1,36 @@
 # dev-tools
 
-Scripts de línea de comandos para automatizar tareas de desarrollo: exportar código fuente, dividir archivos grandes, descargar y cortar videos.
+Scripts de línea de comandos para automatizar tareas de desarrollo: exportar código fuente, dividir archivos grandes, descargar y cortar videos, transcribir audio.
 
 ## Tech Stack
 
 - **Runtime**: Node.js (scripts `.cjs`, módulos core — sin dependencias npm)
-- **Binarios del sistema**: `ffmpeg` (split-video), `yt-dlp` (download)
+- **Binarios del sistema**: `ffmpeg` (split-video), `yt-dlp` (download), `whisper` (transcript)
 
 ## Setup
 
 ```bash
-# Copiar variables de entorno
 cp .env.example .env.local
 # Editar .env.local con las rutas necesarias
 ```
 
 No requiere `npm install` — no hay dependencias externas.
 
-## Comandos
+## Análisis de código
 
 ```bash
-npm run generate          # genera output/RESUME.md con el código fuente de PROJECT_PATH
-npm run split             # divide output/RESUME.md en partes de 10k líneas
+npm run generate          # genera output/code/1_raw/RESUME.md con el código fuente de PROJECT_PATH
+npm run split             # divide RESUME.md en partes de 10k líneas → output/code/2_parts/
 npm run generate-splited  # generate + split + elimina RESUME.md intermedio
+```
 
-npm run download          # descarga DOWNLOAD_URL a output/ en 720p (requiere yt-dlp)
-npm run split-video       # divide VIDEO_PATH en segmentos de 25 min (requiere ffmpeg)
+## Análisis multimedia
+
+```bash
+npm run download           # descarga DOWNLOAD_URL → output/media/1_downloads/
+npm run split-video        # divide el video en segmentos de 25 min → output/media/2_parts/
+npm run transcript         # transcribe las partes → output/media/3_transcripts/
+npm run download-splitted  # download + split-video + transcript en cascada
 ```
 
 ## Variables de entorno (`.env.local`)
@@ -33,21 +38,21 @@ npm run split-video       # divide VIDEO_PATH en segmentos de 25 min (requiere f
 | Variable | Descripción |
 |---|---|
 | `PROJECT_PATH` | Ruta absoluta al proyecto a exportar |
-| `VIDEO_PATH` | Ruta absoluta al video a dividir |
+| `VIDEO_PATH` | Ruta al video a dividir (opcional si se usó `download`) |
 | `DOWNLOAD_URL` | URL de YouTube/TikTok/Instagram a descargar |
+| `WHISPER_MODEL` | Modelo de transcripción: `tiny`, `base`, `small`, `medium`, `large` (default: `tiny`) |
 
-Ver `.env.example` como referencia.
-
-## Estructura
+## Estructura de outputs
 
 ```
-dev-tools/
-├── generate_resume.cjs   # exporta árbol de archivos como .md
-├── split_markdown.cjs    # divide .md en partes por líneas
-├── split_video.cjs       # corta video en segmentos iguales
-├── download_video.cjs    # descarga video en 720p
-├── output/               # salida generada (gitignored)
-└── .env.example          # template de variables
+output/
+├── code/
+│   ├── 1_raw/          ← RESUME.md (eliminado en generate-splited)
+│   └── 2_parts/        ← RESUME_part01.md, RESUME_part02.md ...
+└── media/
+    ├── 1_downloads/    ← video descargado
+    ├── 2_parts/        ← video_parte1.mp4, video_parte2.mp4 ...
+    └── 3_transcripts/  ← video_parte1.txt, video_parte2.txt ...
 ```
 
 ## Estado

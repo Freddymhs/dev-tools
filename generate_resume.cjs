@@ -255,7 +255,7 @@ filteredFiles.forEach(file => {
 
 const footer = `\n\n> **Líneas totales procesadas**: ${totalLinesProcessed}\n`;
 
-const OUTPUT_DIR = path.join(__dirname, 'output');
+const OUTPUT_DIR = path.join(__dirname, 'output', 'code', '1_raw');
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 fs.writeFileSync(path.join(OUTPUT_DIR, 'RESUME.md'), header + fileDetails + footer);
 console.log(`✅ RESUME.md generado con éxito.`);
