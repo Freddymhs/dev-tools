@@ -1,6 +1,6 @@
 # DECISION: Dependencia para menús de TUI
 
-**Status**: ⏳ PENDIENTE DECISIÓN
+**Status**: ✅ DECIDIDO — Opción A (`prompts`)
 **Impacto**: implementación de `lib/menu.cjs`
 
 ## Opciones
@@ -53,11 +53,11 @@ console.log('0. Salir');
 
 ## Decisión
 
-> **[ ] Opción A — prompts**
+> **[x] Opción A — prompts**
 > **[ ] Opción B — readline puro**
 >
-> Fecha: ___
-> Razón: ___
+> Fecha: 2026-05-10
+> Razón: UX con flechas ↑↓ notoriamente mejor que menú numérico. 3 paquetes pequeños sin deps transitivas propias — costo mínimo por ganancia real de usabilidad.
 
 ## Consecuencias si se elige A
 

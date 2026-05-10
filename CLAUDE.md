@@ -19,11 +19,22 @@ npm run transcript         # transcribe partes → output/media/3_transcripts/ (
 npm run download-splitted  # download + split-video + transcript en cascada
 ```
 
+### TUI interactiva
+```bash
+npm run tui   # menú interactivo con flechas — punto de entrada recomendado
+```
+
 Sin lint ni tests configurados.
 
 ## Arquitectura
 
-5 scripts `.cjs` independientes, sin dependencias npm — solo módulos core de Node.js (`fs`, `path`, `child_process`, `readline`) y binarios del sistema.
+5 scripts `.cjs` independientes + TUI (`tui.cjs`). Una dependencia npm: `prompts` (menús interactivos). Resto: módulos core de Node.js (`fs`, `path`, `child_process`, `readline`) y binarios del sistema.
+
+**TUI (`tui.cjs` + `lib/`):**
+- `tui.cjs` — orquestador: menú → operación → pide variables faltantes → ejecuta scripts vía spawn.
+- `lib/env.cjs` — `loadEnv`, `getVar`, `setVar` (persiste en `.env.local`), `listMissing`.
+- `lib/runner.cjs` — `run(script)`: spawn subprocess con `stdio:inherit`, devuelve Promise<exitCode>.
+- `lib/menu.cjs` — `mainMenu`, `submenu`, `askVar` sobre `prompts`. Variables en `required` se preguntan solo si faltan; en `alwaysAsk` se preguntan siempre (ej: `DOWNLOAD_URL`).
 
 **Patrón compartido en todos los scripts:**
 - Carga de entorno: bloque `loadEnvFile` idéntico al inicio — lee `.env` y luego `.env.local` (`.env.local` sobreescribe).

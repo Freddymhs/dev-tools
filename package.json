@@ -9,7 +9,8 @@
     "download": "node download_video.cjs",
     "split-video": "node split_video.cjs",
     "transcript": "node transcript_video.cjs",
-    "download-splitted": "node download_video.cjs && node split_video.cjs && node transcript_video.cjs"
+    "download-splitted": "node download_video.cjs && node split_video.cjs && node transcript_video.cjs",
+    "tui": "node tui.cjs"
   },
   "keywords": [
     "ai-context",
@@ -17,5 +18,8 @@
     "codebase",
     "offline"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "prompts": "^2.4.2"
+  }
 }
