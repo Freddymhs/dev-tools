@@ -37,7 +37,7 @@ Sin lint ni tests configurados.
 - `lib/menu.cjs` — `mainMenu`, `submenu`, `askVar` sobre `prompts`. Variables en `required` se preguntan solo si faltan; en `alwaysAsk` se preguntan siempre (ej: `DOWNLOAD_URL`).
 
 **Patrón compartido en todos los scripts:**
-- Carga de entorno: bloque `loadEnvFile` idéntico al inicio — lee `.env` y luego `.env.local` (`.env.local` sobreescribe).
+- Carga de entorno: `const { loadEnv } = require('./lib/env.cjs'); loadEnv();` al inicio — lee `.env` y luego `.env.local` (`.env.local` sobreescribe). La lógica centralizada vive en `lib/env.cjs`.
 - Errores: `console.error()` + `process.exit(1)`. `execSync` sin try/catch — falla ruidosamente.
 
 **Estructura de outputs:**
@@ -74,7 +74,7 @@ Ver `.env.example` como referencia. `.env.local` nunca se sube al repo.
 
 ## Agregar un nuevo script
 
-1. Copiar el bloque `loadEnvFile` exacto de cualquier script existente.
+1. Importar `const { loadEnv } = require('./lib/env.cjs');` y llamar `loadEnv()` al inicio — no copiar el bloque manualmente.
 2. Leer input por argumento CLI primero, env var como fallback.
 3. Validar existencia antes de proceder (`fs.existsSync` + `process.exit(1)`).
 4. Escribir salida en la subcarpeta correspondiente de `output/`.

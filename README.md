@@ -14,7 +14,13 @@ cp .env.example .env.local
 # Editar .env.local con las rutas necesarias
 ```
 
-No requiere `npm install` — no hay dependencias externas.
+Los scripts individuales no requieren dependencias externas. El TUI (`npm run tui`) usa `prompts` — ejecutar `npm install` antes de usarlo.
+
+## TUI interactivo
+
+```bash
+npm run tui               # menú interactivo que orquesta todas las operaciones
+```
 
 ## Análisis de código
 

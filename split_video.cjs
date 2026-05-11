@@ -1,27 +1,12 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const { loadEnv } = require("./lib/env.cjs");
 
 const MAX_MINUTES = 25;
 const MAX_SECONDS = MAX_MINUTES * 60;
 
-const loadEnvFile = (filePath) => {
-  if (!fs.existsSync(filePath)) return;
-  fs.readFileSync(filePath, "utf-8")
-    .split("\n")
-    .forEach((line) => {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("#")) return;
-      const eqIndex = trimmed.indexOf("=");
-      if (eqIndex === -1) return;
-      const key = trimmed.slice(0, eqIndex).trim();
-      const value = trimmed.slice(eqIndex + 1).trim();
-      if (key) process.env[key] = value;
-    });
-};
-
-loadEnvFile(path.join(__dirname, ".env"));
-loadEnvFile(path.join(__dirname, ".env.local"));
+loadEnv();
 
 const LAST_VIDEO_FILE = path.join(__dirname, "output", "media", ".last_video");
 const PARTS_DIR = path.join(__dirname, "output", "media", "2_parts");

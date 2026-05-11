@@ -1,6 +1,6 @@
 # FASE 3: TUI — Polish
 
-**Status**: ⏸️ PENDIENTE
+**Status**: ✅ COMPLETADA
 **Prioridad**: Media
 **Dependencias**: FASE_2
 
@@ -44,6 +44,6 @@ Mejoras de UX y robustez una vez que el TUI core funciona. Ninguna es bloqueante
 
 ## Criterios de Aceptación
 
-- [ ] Segunda ejecución de "Generar resume" muestra `[actual: /ruta/anterior]` y acepta Enter sin reescribir
-- [ ] Los 5 scripts siguen funcionando con `node script.cjs` después del refactor (si se hace 3.B)
-- [ ] Pipeline completo muestra separadores claros entre cada etapa
+- [x] Segunda ejecución de "Generar resume" muestra `[actual: /ruta/anterior]` y acepta Enter sin reescribir
+- [x] Los 5 scripts siguen funcionando con `node script.cjs` después del refactor (si se hace 3.B)
+- [x] Pipeline completo muestra separadores claros entre cada etapa

@@ -15,31 +15,38 @@ process.on("SIGINT", () => {
 const OPERATIONS = {
   generate: {
     scripts: ["generate_resume.cjs"],
+    labels: ["Generando resume del proyecto..."],
     required: [{ key: "PROJECT_PATH", label: "Ruta absoluta al proyecto" }],
   },
   "generate-split": {
     scripts: ["generate_resume.cjs", "split_markdown.cjs"],
+    labels: ["Generando resume del proyecto...", "Dividiendo en partes..."],
     required: [{ key: "PROJECT_PATH", label: "Ruta absoluta al proyecto" }],
   },
   split: {
     scripts: ["split_markdown.cjs"],
+    labels: ["Dividiendo markdown en partes..."],
     required: [],
   },
   download: {
     scripts: ["download_video.cjs"],
+    labels: ["Descargando video..."],
     required: [],
     alwaysAsk: [{ key: "DOWNLOAD_URL", label: "URL del video (YouTube, TikTok, etc.)" }],
   },
   "split-video": {
     scripts: ["split_video.cjs"],
+    labels: ["Dividiendo video en segmentos..."],
     required: [],
   },
   transcript: {
     scripts: ["transcript_video.cjs"],
+    labels: ["Transcribiendo partes..."],
     required: [],
   },
   pipeline: {
     scripts: ["download_video.cjs", "split_video.cjs", "transcript_video.cjs"],
+    labels: ["Descargando video...", "Dividiendo video en segmentos...", "Transcribiendo partes..."],
     required: [],
     alwaysAsk: [{ key: "DOWNLOAD_URL", label: "URL del video (YouTube, TikTok, etc.)" }],
   },
@@ -69,14 +76,15 @@ const executeOperation = async (opKey) => {
   await askMissing(op.required);
   await askAlways(op.alwaysAsk);
 
-  for (const script of op.scripts) {
-    separator(`▶  ${script}`);
+  for (const [i, script] of op.scripts.entries()) {
+    const label = op.labels[i];
+    separator(`▶  ${label}`);
     const code = await run(script);
     if (code !== 0) {
-      console.log(`\n❌ ${script} terminó con error (código ${code})`);
+      console.log(`\n❌ ${label} terminó con error (código ${code})`);
       return;
     }
-    console.log(`\n✅ ${script} completado`);
+    console.log(`\n✅ ${label.replace("...", " completado")}`);
   }
   separator();
 };

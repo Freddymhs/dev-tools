@@ -7,7 +7,7 @@
 | [FASE_0](FASE_0_CERRAR_ACTUALES.md) | Cerrar cambios actuales | ✅ COMPLETADA | 3 |
 | [FASE_1](FASE_1_TUI_INFRA.md) | TUI — Infraestructura | ✅ COMPLETADA | 4 |
 | [FASE_2](FASE_2_TUI_ORQUESTADOR.md) | TUI — Orquestador | ✅ COMPLETADA | 4 |
-| [FASE_3](FASE_3_TUI_POLISH.md) | TUI — Polish | ⏸️ PENDIENTE | 3 |
+| [FASE_3](FASE_3_TUI_POLISH.md) | TUI — Polish | ✅ COMPLETADA | 3 |
 
 ## Diagramas de Referencia
 
