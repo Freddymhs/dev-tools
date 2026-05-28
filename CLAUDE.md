@@ -6,16 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Análisis de código
 ```bash
-npm run generate          # genera output/code/1_raw/RESUME.md con el código fuente de PROJECT_PATH
-npm run split             # divide RESUME.md en partes de 10k líneas → output/code/2_parts/
+npm run generate          # genera ~/Documents/dev-tools/code/1_raw/RESUME.md con el código fuente de PROJECT_PATH
+npm run split             # divide RESUME.md en partes de 10k líneas → ~/Documents/dev-tools/code/2_parts/
 npm run generate-splited  # generate + split + elimina RESUME.md intermedio
 ```
 
 ### Análisis multimedia
 ```bash
-npm run download           # descarga DOWNLOAD_URL → output/media/1_downloads/ + guarda .last_video
-npm run split-video        # divide video en segmentos de 25 min → output/media/2_parts/
-npm run transcript         # transcribe partes → output/media/3_transcripts/ (requiere whisper)
+npm run download           # descarga DOWNLOAD_URL → ~/Documents/dev-tools/media/1_downloads/ + guarda .last_video
+npm run split-video        # divide video en segmentos de 25 min → ~/Documents/dev-tools/media/2_parts/
+npm run transcript         # transcribe partes → ~/Documents/dev-tools/media/3_transcripts/ (requiere whisper)
 npm run download-splitted  # download + split-video + transcript en cascada
 ```
 
@@ -24,7 +24,13 @@ npm run download-splitted  # download + split-video + transcript en cascada
 npm run tui   # menú interactivo con flechas — punto de entrada recomendado
 ```
 
-Sin lint ni tests configurados.
+### Tests
+```bash
+npm test               # 35 tests: unit + integration
+npm run test:unit      # solo unit (lib/env, lib/paths)
+npm run test:integration  # solo integration (scripts + pipeline)
+npm run test:setup     # genera fixtures de video con ffmpeg (correr una vez)
+```
 
 ## Arquitectura
 
@@ -52,16 +58,16 @@ Sin lint ni tests configurados.
     ├── 2_parts/        ← split-video
     └── 3_transcripts/  ← transcript
 ```
-Rutas centralizadas en `lib/paths.cjs`. Cada ejecución sobreescribe el contenido anterior.
+Rutas centralizadas en `lib/paths.cjs`. Comportamiento por script: `split_markdown`, `split_video` y `transcript` limpian su directorio de salida antes de escribir (sin acumulación entre runs). `download` acumula en `1_downloads/` (yt-dlp cachea por nombre de archivo). `generate` sobreescribe `RESUME.md` directamente.
 
 **Cascada multimedia:** `download` guarda la ruta del video descargado en `~/Documents/dev-tools/media/.last_video`. `split-video` lee `VIDEO_PATH` del env o cae a `.last_video` si no está definido.
 
 **Por script:**
-- `generate_resume.cjs` — recorre el árbol del proyecto (lista negra de dirs, whitelist de extensiones), emite un `.md` con secciones `<details>` por archivo. Acepta CLI arg o `PROJECT_PATH`. Salida: `output/code/1_raw/RESUME.md`.
-- `split_markdown.cjs` — divide un `.md` grande por líneas usando stream, respeta bloques de código. Sin args: lee `output/code/1_raw/RESUME.md` y escribe en `output/code/2_parts/`. Con args: comportamiento legacy (escribe junto al input).
-- `split_video.cjs` — lee duración con ffmpeg, calcula segmentos iguales, corta con `-c copy`. Lee `VIDEO_PATH` o `.last_video`. Salida: `output/media/2_parts/`.
-- `download_video.cjs` — verifica `yt-dlp`, descarga en 720p, guarda ruta en `output/media/.last_video`. Salida: `output/media/1_downloads/`.
-- `transcript_video.cjs` — verifica `whisper`, escanea `output/media/2_parts/` por archivos de video, transcribe cada uno. Lee `WHISPER_MODEL` (default `tiny`). Salida: `output/media/3_transcripts/`.
+- `generate_resume.cjs` — recorre el árbol del proyecto (lista negra de dirs, whitelist de extensiones), emite un `.md` con secciones `<details>` por archivo. Acepta CLI arg o `PROJECT_PATH`. Falla con exit 1 si el directorio no existe. Salida: `~/Documents/dev-tools/code/1_raw/RESUME.md`.
+- `split_markdown.cjs` — divide un `.md` grande por líneas usando stream, respeta bloques de código. Limpia `2_parts/` antes de escribir. Sin args: lee `~/Documents/dev-tools/code/1_raw/RESUME.md` y escribe en `~/Documents/dev-tools/code/2_parts/`. Con args: comportamiento legacy (escribe junto al input).
+- `split_video.cjs` — lee duración con ffmpeg, calcula segmentos iguales, corta con `-c copy`. Limpia `2_parts/` antes de escribir. Video corto (≤ umbral): copia como parte única. Lee `VIDEO_PATH` o `.last_video`. Umbral configurable via `DEV_TOOLS_SPLIT_SECONDS`. Salida: `~/Documents/dev-tools/media/2_parts/`.
+- `download_video.cjs` — verifica `yt-dlp`, descarga en 720p, persiste ruta en `.last_video` y `VIDEO_PATH` del env (incluso en "already downloaded"). Salida: `~/Documents/dev-tools/media/1_downloads/`.
+- `transcript_video.cjs` — verifica `whisper`, escanea `~/Documents/dev-tools/media/2_parts/` por archivos de video, limpia `3_transcripts/` antes de transcribir. Lee `WHISPER_MODEL` (default `tiny`). Salida: `~/Documents/dev-tools/media/3_transcripts/`.
 
 ## Configuración (`.env.local`)
 
@@ -79,5 +85,5 @@ Ver `.env.example` como referencia. `.env.local` nunca se sube al repo.
 1. Importar `const { loadEnv } = require('./lib/env.cjs');` y llamar `loadEnv()` al inicio — no copiar el bloque manualmente.
 2. Leer input por argumento CLI primero, env var como fallback.
 3. Validar existencia antes de proceder (`fs.existsSync` + `process.exit(1)`).
-4. Escribir salida en la subcarpeta correspondiente de `output/`.
+4. Escribir salida en la subcarpeta correspondiente de `~/Documents/dev-tools/` (usar constante de `lib/paths.cjs`). Limpiar el directorio de salida antes de escribir si aplica (patrón de `split_video`, `split_markdown`, `transcript_video`).
 5. Agregar el script en `package.json` y la variable en `.env.example`.

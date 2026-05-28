@@ -1,7 +1,7 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const { loadEnv } = require("./lib/env.cjs");
+const { loadEnv, setVar } = require("./lib/env.cjs");
 const { MEDIA_DOWNLOADS, LAST_VIDEO } = require("./lib/paths.cjs");
 
 loadEnv();
@@ -37,9 +37,27 @@ execSync(
 );
 
 const newFile = fs.readdirSync(OUTPUT_DIR).find((f) => !beforeFiles.has(f));
-if (newFile) {
-  fs.writeFileSync(LAST_VIDEO_FILE, path.join(OUTPUT_DIR, newFile));
-  console.log(`📌 Guardado en .last_video: ${newFile}`);
+
+const resolveDownloadedPath = () => {
+  if (newFile) return path.join(OUTPUT_DIR, newFile);
+
+  // "already downloaded" — yt-dlp skipped but file exists; find it by basename
+  const expectedName = execSync(
+    `yt-dlp --skip-download --print filename -f "bestvideo[height<=720]+bestaudio/best[height<=720]" -o "${outputTemplate}" "${url}" 2>/dev/null`,
+    { encoding: "utf8" }
+  ).trim().split("\n")[0];
+  const base = path.basename(expectedName, path.extname(expectedName));
+  const match = fs.readdirSync(OUTPUT_DIR).find(
+    (f) => path.basename(f, path.extname(f)) === base
+  );
+  return match ? path.join(OUTPUT_DIR, match) : null;
+};
+
+const videoPath = resolveDownloadedPath();
+if (videoPath) {
+  fs.writeFileSync(LAST_VIDEO_FILE, videoPath);
+  setVar("VIDEO_PATH", videoPath);
+  console.log(`📌 Video listo: ${path.basename(videoPath)}`);
 }
 
 console.log(`✅ Descarga completada en: ${OUTPUT_DIR}`);

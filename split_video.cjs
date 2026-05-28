@@ -4,19 +4,22 @@ const path = require("path");
 const { loadEnv } = require("./lib/env.cjs");
 const { MEDIA_PARTS, LAST_VIDEO } = require("./lib/paths.cjs");
 
-const MAX_MINUTES = 25;
-const MAX_SECONDS = MAX_MINUTES * 60;
+const MAX_SECONDS = parseInt(process.env.DEV_TOOLS_SPLIT_SECONDS, 10) || (25 * 60);
 
 loadEnv();
 
 const LAST_VIDEO_FILE = LAST_VIDEO;
 const PARTS_DIR = MEDIA_PARTS;
 
-let videoPath = process.env.VIDEO_PATH;
-if (!videoPath && fs.existsSync(LAST_VIDEO_FILE)) {
-  videoPath = fs.readFileSync(LAST_VIDEO_FILE, "utf-8").trim();
-  console.log(`Usando .last_video: ${videoPath}`);
-}
+const videoPath = (() => {
+  if (process.env.VIDEO_PATH) return process.env.VIDEO_PATH;
+  if (fs.existsSync(LAST_VIDEO_FILE)) {
+    const p = fs.readFileSync(LAST_VIDEO_FILE, "utf-8").trim();
+    console.log(`Usando .last_video: ${p}`);
+    return p;
+  }
+  return null;
+})();
 
 if (!videoPath) {
   console.error("Falta VIDEO_PATH en .env.local o ejecutar npm run download primero");
@@ -30,6 +33,13 @@ if (!fs.existsSync(absolutePath)) {
   process.exit(1);
 }
 
+// Limpiar parts viejos antes de crear nuevos (evita acumulación entre runs)
+if (fs.existsSync(PARTS_DIR)) {
+  const VIDEO_EXT = new Set([".mp4", ".webm", ".mkv", ".avi", ".mov", ".m4v"]);
+  fs.readdirSync(PARTS_DIR)
+    .filter((f) => VIDEO_EXT.has(path.extname(f).toLowerCase()))
+    .forEach((f) => fs.unlinkSync(path.join(PARTS_DIR, f)));
+}
 fs.mkdirSync(PARTS_DIR, { recursive: true });
 
 const ext = path.extname(absolutePath);
@@ -56,7 +66,9 @@ const formatTime = (seconds) => {
 };
 
 if (totalSeconds <= MAX_SECONDS) {
-  console.log(`Video dura ${formatTime(totalSeconds)}. No necesita dividirse.`);
+  const outputFile = path.join(PARTS_DIR, `${baseName}_parte1${ext}`);
+  fs.copyFileSync(absolutePath, outputFile);
+  console.log(`Video dura ${formatTime(totalSeconds)}. Copiado como parte única.`);
   process.exit(0);
 }
 
@@ -66,7 +78,7 @@ const partDuration = Math.ceil(totalSeconds / partsCount);
 console.log(`Video: ${baseName}${ext} (${formatTime(totalSeconds)})`);
 console.log(`${partsCount} partes de ~${formatTime(partDuration)}`);
 
-for (let i = 0; i < partsCount; i++) {
+Array.from({ length: partsCount }, (_, i) => i).forEach((i) => {
   const start = i * partDuration;
   const outputFile = path.join(PARTS_DIR, `${baseName}_parte${i + 1}${ext}`);
   const isLast = i === partsCount - 1;
@@ -77,6 +89,6 @@ for (let i = 0; i < partsCount; i++) {
 
   execSync(cmd);
   console.log(`Parte ${i + 1}: ${formatTime(start)} → ${isLast ? "final" : formatTime(start + partDuration)}`);
-}
+});
 
 console.log("Listo.");

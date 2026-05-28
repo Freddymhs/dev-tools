@@ -12,6 +12,11 @@ async function splitMarkdown(inputFile, maxLines, outputDir) {
     process.exit(1);
   }
 
+  if (fs.existsSync(outputDir)) {
+    fs.readdirSync(outputDir)
+      .filter((f) => f.endsWith('.md'))
+      .forEach((f) => fs.unlinkSync(path.join(outputDir, f)));
+  }
   fs.mkdirSync(outputDir, { recursive: true });
 
   const ext = path.extname(inputFile);

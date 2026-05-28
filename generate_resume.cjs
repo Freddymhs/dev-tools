@@ -163,6 +163,12 @@ const rootDir = args[0]
     : process.env.PROJECT_PATH
         ? path.resolve(process.env.PROJECT_PATH)
         : process.cwd();
+
+if (!fs.existsSync(rootDir)) {
+    console.error(`Error: directorio no encontrado: ${rootDir}`);
+    process.exit(1);
+}
+
 const allFiles = walk(rootDir);
 
 // No incluir el propio RESUME ni los scripts auxiliares en el resultado

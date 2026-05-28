@@ -48,6 +48,11 @@ if (parts.length === 0) {
   process.exit(1);
 }
 
+if (fs.existsSync(TRANSCRIPTS_DIR)) {
+  fs.readdirSync(TRANSCRIPTS_DIR)
+    .filter((f) => f.endsWith(".txt"))
+    .forEach((f) => fs.unlinkSync(path.join(TRANSCRIPTS_DIR, f)));
+}
 fs.mkdirSync(TRANSCRIPTS_DIR, { recursive: true });
 
 console.log(`${parts.length} partes encontradas. Modelo: ${whisperModel}`);
