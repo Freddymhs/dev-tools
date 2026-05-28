@@ -2,16 +2,12 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { loadEnv } = require("./lib/env.cjs");
+const { MEDIA_PARTS, MEDIA_TRANSCRIPTS } = require("./lib/paths.cjs");
 
 loadEnv();
 
-const PARTS_DIR = path.join(__dirname, "output", "media", "2_parts");
-const TRANSCRIPTS_DIR = path.join(
-  __dirname,
-  "output",
-  "media",
-  "3_transcripts",
-);
+const PARTS_DIR = MEDIA_PARTS;
+const TRANSCRIPTS_DIR = MEDIA_TRANSCRIPTS;
 const whisperModel = process.env.WHISPER_MODEL || "tiny";
 
 try {
@@ -25,7 +21,7 @@ try {
 
 if (!fs.existsSync(PARTS_DIR)) {
   console.error(
-    "No existe output/media/2_parts/. Ejecutar npm run split-video primero.",
+    `No existe ${PARTS_DIR}. Ejecutar npm run split-video primero.`,
   );
   process.exit(1);
 }
@@ -47,7 +43,7 @@ const parts = fs
 
 if (parts.length === 0) {
   console.error(
-    "No se encontraron videos en output/media/2_parts/. Ejecutar npm run split-video primero.",
+    `No se encontraron videos en ${PARTS_DIR}. Ejecutar npm run split-video primero.`,
   );
   process.exit(1);
 }
@@ -65,4 +61,4 @@ for (const part of parts) {
   );
 }
 
-console.log(`\n✅ Transcripciones completadas en: output/media/3_transcripts/`);
+console.log(`\n✅ Transcripciones completadas en: ${TRANSCRIPTS_DIR}`);

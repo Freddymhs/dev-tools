@@ -16,12 +16,14 @@ const OPERATIONS = {
   generate: {
     scripts: ["generate_resume.cjs"],
     labels: ["Generando resume del proyecto..."],
-    required: [{ key: "PROJECT_PATH", label: "Ruta absoluta al proyecto" }],
+    required: [],
+    alwaysAsk: [{ key: "PROJECT_PATH", label: "Ruta absoluta al proyecto" }],
   },
   "generate-split": {
     scripts: ["generate_resume.cjs", "split_markdown.cjs"],
     labels: ["Generando resume del proyecto...", "Dividiendo en partes..."],
-    required: [{ key: "PROJECT_PATH", label: "Ruta absoluta al proyecto" }],
+    required: [],
+    alwaysAsk: [{ key: "PROJECT_PATH", label: "Ruta absoluta al proyecto" }],
   },
   split: {
     scripts: ["split_markdown.cjs"],

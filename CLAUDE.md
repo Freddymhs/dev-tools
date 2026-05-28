@@ -31,18 +31,19 @@ Sin lint ni tests configurados.
 5 scripts `.cjs` independientes + TUI (`tui.cjs`). Una dependencia npm: `prompts` (menús interactivos). Resto: módulos core de Node.js (`fs`, `path`, `child_process`, `readline`) y binarios del sistema.
 
 **TUI (`tui.cjs` + `lib/`):**
-- `tui.cjs` — orquestador: menú → operación → pide variables faltantes → ejecuta scripts vía spawn.
+- `tui.cjs` — orquestador: menú → operación → pide variables según `required` (si faltan) o `alwaysAsk` (siempre) → ejecuta scripts vía spawn.
 - `lib/env.cjs` — `loadEnv`, `getVar`, `setVar` (persiste en `.env.local`), `listMissing`.
 - `lib/runner.cjs` — `run(script)`: spawn subprocess con `stdio:inherit`, devuelve Promise<exitCode>.
-- `lib/menu.cjs` — `mainMenu`, `submenu`, `askVar` sobre `prompts`. Variables en `required` se preguntan solo si faltan; en `alwaysAsk` se preguntan siempre (ej: `DOWNLOAD_URL`).
+- `lib/menu.cjs` — `mainMenu`, `submenu`, `askVar` sobre `prompts`. Variables en `required` se preguntan solo si faltan; en `alwaysAsk` se preguntan siempre (ej: `DOWNLOAD_URL`, `PROJECT_PATH`).
 
 **Patrón compartido en todos los scripts:**
 - Carga de entorno: `const { loadEnv } = require('./lib/env.cjs'); loadEnv();` al inicio — lee `.env` y luego `.env.local` (`.env.local` sobreescribe). La lógica centralizada vive en `lib/env.cjs`.
+- Rutas de output: `const { ... } = require('./lib/paths.cjs');` — base en `~/Documents/dev-tools/`, exporta `CODE_RAW`, `CODE_PARTS`, `MEDIA_DOWNLOADS`, `MEDIA_PARTS`, `MEDIA_TRANSCRIPTS`, `LAST_VIDEO`.
 - Errores: `console.error()` + `process.exit(1)`. `execSync` sin try/catch — falla ruidosamente.
 
 **Estructura de outputs:**
 ```
-output/
+~/Documents/dev-tools/
 ├── code/
 │   ├── 1_raw/          ← generate
 │   └── 2_parts/        ← split
@@ -51,8 +52,9 @@ output/
     ├── 2_parts/        ← split-video
     └── 3_transcripts/  ← transcript
 ```
+Rutas centralizadas en `lib/paths.cjs`. Cada ejecución sobreescribe el contenido anterior.
 
-**Cascada multimedia:** `download` guarda la ruta del video descargado en `output/media/.last_video`. `split-video` lee `VIDEO_PATH` del env o cae a `.last_video` si no está definido.
+**Cascada multimedia:** `download` guarda la ruta del video descargado en `~/Documents/dev-tools/media/.last_video`. `split-video` lee `VIDEO_PATH` del env o cae a `.last_video` si no está definido.
 
 **Por script:**
 - `generate_resume.cjs` — recorre el árbol del proyecto (lista negra de dirs, whitelist de extensiones), emite un `.md` con secciones `<details>` por archivo. Acepta CLI arg o `PROJECT_PATH`. Salida: `output/code/1_raw/RESUME.md`.

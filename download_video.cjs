@@ -2,6 +2,7 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { loadEnv } = require("./lib/env.cjs");
+const { MEDIA_DOWNLOADS, LAST_VIDEO } = require("./lib/paths.cjs");
 
 loadEnv();
 
@@ -22,8 +23,8 @@ try {
   process.exit(1);
 }
 
-const OUTPUT_DIR = path.join(__dirname, "output", "media", "1_downloads");
-const LAST_VIDEO_FILE = path.join(__dirname, "output", "media", ".last_video");
+const OUTPUT_DIR = MEDIA_DOWNLOADS;
+const LAST_VIDEO_FILE = LAST_VIDEO;
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
 const beforeFiles = new Set(fs.readdirSync(OUTPUT_DIR));
@@ -41,4 +42,4 @@ if (newFile) {
   console.log(`📌 Guardado en .last_video: ${newFile}`);
 }
 
-console.log("✅ Descarga completada en output/media/1_downloads/");
+console.log(`✅ Descarga completada en: ${OUTPUT_DIR}`);

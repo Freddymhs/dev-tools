@@ -2,14 +2,15 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { loadEnv } = require("./lib/env.cjs");
+const { MEDIA_PARTS, LAST_VIDEO } = require("./lib/paths.cjs");
 
 const MAX_MINUTES = 25;
 const MAX_SECONDS = MAX_MINUTES * 60;
 
 loadEnv();
 
-const LAST_VIDEO_FILE = path.join(__dirname, "output", "media", ".last_video");
-const PARTS_DIR = path.join(__dirname, "output", "media", "2_parts");
+const LAST_VIDEO_FILE = LAST_VIDEO;
+const PARTS_DIR = MEDIA_PARTS;
 
 let videoPath = process.env.VIDEO_PATH;
 if (!videoPath && fs.existsSync(LAST_VIDEO_FILE)) {

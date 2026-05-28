@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { loadEnv } = require('./lib/env.cjs');
+const { CODE_RAW } = require('./lib/paths.cjs');
 
 loadEnv();
 
@@ -238,7 +239,7 @@ filteredFiles.forEach(file => {
 
 const footer = `\n\n> **Líneas totales procesadas**: ${totalLinesProcessed}\n`;
 
-const OUTPUT_DIR = path.join(__dirname, 'output', 'code', '1_raw');
+const OUTPUT_DIR = CODE_RAW;
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 fs.writeFileSync(path.join(OUTPUT_DIR, 'RESUME.md'), header + fileDetails + footer);
 console.log(`✅ RESUME.md generado con éxito.`);

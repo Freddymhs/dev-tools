@@ -2,6 +2,7 @@ const fs = require('fs');
 const readline = require('readline');
 const path = require('path');
 const { loadEnv } = require('./lib/env.cjs');
+const { CODE_RAW, CODE_PARTS } = require('./lib/paths.cjs');
 
 loadEnv();
 
@@ -56,12 +57,12 @@ async function splitMarkdown(inputFile, maxLines, outputDir) {
 }
 
 const args = process.argv.slice(2);
-const defaultResume = path.join(__dirname, 'output', 'code', '1_raw', 'RESUME.md');
+const defaultResume = path.join(CODE_RAW, 'RESUME.md');
 const inputFile = args[0] || defaultResume;
 const maxLines = parseInt(args[1], 10) || 10000;
 const outputDir = args[0]
   ? path.dirname(inputFile)
-  : path.join(__dirname, 'output', 'code', '2_parts');
+  : CODE_PARTS;
 
 console.log(`Iniciando división de ${inputFile} en bloques de aprox. ${maxLines} líneas...`);
 splitMarkdown(inputFile, maxLines, outputDir).catch(console.error);
