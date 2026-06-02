@@ -13,6 +13,22 @@ if (!url) {
   process.exit(1);
 }
 
+const LAST_VIDEO_FILE = LAST_VIDEO;
+
+const isLocalFile = !url.startsWith("http://") && !url.startsWith("https://");
+
+if (isLocalFile) {
+  if (!fs.existsSync(url)) {
+    console.error(`Archivo no encontrado: ${url}`);
+    process.exit(1);
+  }
+  const videoPath = path.resolve(url);
+  fs.writeFileSync(LAST_VIDEO_FILE, videoPath);
+  setVar("VIDEO_PATH", videoPath);
+  console.log(`📌 Video local registrado: ${path.basename(videoPath)}`);
+  process.exit(0);
+}
+
 try {
   execSync("which yt-dlp", { stdio: "ignore" });
 } catch {
@@ -24,7 +40,6 @@ try {
 }
 
 const OUTPUT_DIR = MEDIA_DOWNLOADS;
-const LAST_VIDEO_FILE = LAST_VIDEO;
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
 const beforeFiles = new Set(fs.readdirSync(OUTPUT_DIR));

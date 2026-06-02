@@ -34,7 +34,7 @@ const OPERATIONS = {
     scripts: ["download_video.cjs"],
     labels: ["Descargando video..."],
     required: [],
-    alwaysAsk: [{ key: "DOWNLOAD_URL", label: "URL del video (YouTube, TikTok, etc.)" }],
+    alwaysAsk: [{ key: "DOWNLOAD_URL", label: "URL del video o ruta local" }],
   },
   "split-video": {
     scripts: ["split_video.cjs"],
@@ -50,7 +50,7 @@ const OPERATIONS = {
     scripts: ["download_video.cjs", "split_video.cjs", "transcript_video.cjs"],
     labels: ["Descargando video...", "Dividiendo video en segmentos...", "Transcribiendo partes..."],
     required: [],
-    alwaysAsk: [{ key: "DOWNLOAD_URL", label: "URL del video (YouTube, TikTok, etc.)" }],
+    alwaysAsk: [{ key: "DOWNLOAD_URL", label: "URL del video o ruta local" }],
   },
 };
 

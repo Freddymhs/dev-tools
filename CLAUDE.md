@@ -13,7 +13,7 @@ npm run generate-splited  # generate + split + elimina RESUME.md intermedio
 
 ### Análisis multimedia
 ```bash
-npm run download           # descarga DOWNLOAD_URL → ~/Documents/dev-tools/media/1_downloads/ + guarda .last_video
+npm run download           # descarga DOWNLOAD_URL → ~/Documents/dev-tools/media/1_downloads/ + guarda .last_video; si DOWNLOAD_URL es ruta local, la registra directamente sin descargar
 npm run split-video        # divide video en segmentos de 25 min → ~/Documents/dev-tools/media/2_parts/
 npm run transcript         # transcribe partes → ~/Documents/dev-tools/media/3_transcripts/ (requiere whisper)
 npm run download-splitted  # download + split-video + transcript en cascada
@@ -26,7 +26,7 @@ npm run tui   # menú interactivo con flechas — punto de entrada recomendado
 
 ### Tests
 ```bash
-npm test               # 35 tests: unit + integration
+npm test               # 37 tests: unit + integration
 npm run test:unit      # solo unit (lib/env, lib/paths)
 npm run test:integration  # solo integration (scripts + pipeline)
 npm run test:setup     # genera fixtures de video con ffmpeg (correr una vez)
@@ -58,7 +58,7 @@ npm run test:setup     # genera fixtures de video con ffmpeg (correr una vez)
     ├── 2_parts/        ← split-video
     └── 3_transcripts/  ← transcript
 ```
-Rutas centralizadas en `lib/paths.cjs`. Comportamiento por script: `split_markdown`, `split_video` y `transcript` limpian su directorio de salida antes de escribir (sin acumulación entre runs). `download` acumula en `1_downloads/` (yt-dlp cachea por nombre de archivo). `generate` sobreescribe `RESUME.md` directamente.
+Rutas centralizadas en `lib/paths.cjs`. Comportamiento por script: `split_markdown`, `split_video` y `transcript` limpian su directorio de salida antes de escribir (sin acumulación entre runs). `download` acumula en `1_downloads/` cuando `DOWNLOAD_URL` es una URL (yt-dlp cachea por nombre de archivo); si es ruta local, no copia el archivo. `generate` sobreescribe `RESUME.md` directamente.
 
 **Cascada multimedia:** `download` guarda la ruta del video descargado en `~/Documents/dev-tools/media/.last_video`. `split-video` lee `VIDEO_PATH` del env o cae a `.last_video` si no está definido.
 
@@ -66,7 +66,7 @@ Rutas centralizadas en `lib/paths.cjs`. Comportamiento por script: `split_markdo
 - `generate_resume.cjs` — recorre el árbol del proyecto (lista negra de dirs, whitelist de extensiones), emite un `.md` con secciones `<details>` por archivo. Acepta CLI arg o `PROJECT_PATH`. Falla con exit 1 si el directorio no existe. Salida: `~/Documents/dev-tools/code/1_raw/RESUME.md`.
 - `split_markdown.cjs` — divide un `.md` grande por líneas usando stream, respeta bloques de código. Limpia `2_parts/` antes de escribir. Sin args: lee `~/Documents/dev-tools/code/1_raw/RESUME.md` y escribe en `~/Documents/dev-tools/code/2_parts/`. Con args: comportamiento legacy (escribe junto al input).
 - `split_video.cjs` — lee duración con ffmpeg, calcula segmentos iguales, corta con `-c copy`. Limpia `2_parts/` antes de escribir. Video corto (≤ umbral): copia como parte única. Lee `VIDEO_PATH` o `.last_video`. Umbral configurable via `DEV_TOOLS_SPLIT_SECONDS`. Salida: `~/Documents/dev-tools/media/2_parts/`.
-- `download_video.cjs` — verifica `yt-dlp`, descarga en 720p, persiste ruta en `.last_video` y `VIDEO_PATH` del env (incluso en "already downloaded"). Salida: `~/Documents/dev-tools/media/1_downloads/`.
+- `download_video.cjs` — dual behavior según `DOWNLOAD_URL`: si es URL (`http://`/`https://`), verifica `yt-dlp` y descarga en 720p en `1_downloads/`; si es ruta local, verifica que el archivo exista y lo registra directamente. En ambos casos persiste la ruta en `.last_video` y `VIDEO_PATH`.
 - `transcript_video.cjs` — verifica `whisper`, escanea `~/Documents/dev-tools/media/2_parts/` por archivos de video, limpia `3_transcripts/` antes de transcribir. Lee `WHISPER_MODEL` (default `tiny`). Salida: `~/Documents/dev-tools/media/3_transcripts/`.
 
 ## Configuración (`.env.local`)
@@ -74,11 +74,15 @@ Rutas centralizadas en `lib/paths.cjs`. Comportamiento por script: `split_markdo
 ```
 PROJECT_PATH=/ruta/absoluta/al/proyecto
 VIDEO_PATH=/ruta/absoluta/al/video.mp4   # opcional si se usó download
-DOWNLOAD_URL=https://youtube.com/watch?v=...
+DOWNLOAD_URL=https://youtube.com/watch?v=...  # también acepta ruta local absoluta
 WHISPER_MODEL=small                       # tiny | base | small | medium | large
 ```
 
 Ver `.env.example` como referencia. `.env.local` nunca se sube al repo.
+
+## Tests
+
+Al agregar un branch condicional nuevo en un script que ya tiene tests de integración, agregar tests para ese branch en el mismo cambio — no dejarlo como deuda pendiente.
 
 ## Agregar un nuevo script
 

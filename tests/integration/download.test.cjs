@@ -47,4 +47,28 @@ describe('download_video.cjs', () => {
     assert.notEqual(result.status, 0);
     assert.ok(result.stderr.includes('DOWNLOAD_URL'));
   });
+
+  test('registra video local sin usar yt-dlp', () => {
+    const localPath = FIXTURES + '/short.mp4';
+    const env = makeEnv(ctx.dir, { DOWNLOAD_URL: localPath });
+    const result = runScript('download_video.cjs', env);
+
+    assert.equal(result.status, 0, `stderr: ${result.stderr}\nstdout: ${result.stdout}`);
+    assert.ok(result.stdout.includes('Video local registrado'));
+
+    const lastVideoFile = path.join(ctx.dir, 'media', '.last_video');
+    assert.ok(fs.existsSync(lastVideoFile), '.last_video debe crearse');
+    assert.equal(fs.readFileSync(lastVideoFile, 'utf8').trim(), localPath);
+
+    const envContent = fs.readFileSync(env.DEV_TOOLS_ENV_FILE, 'utf8');
+    assert.ok(envContent.includes('VIDEO_PATH='), 'VIDEO_PATH debe estar en el env file');
+    assert.ok(envContent.includes(localPath), 'VIDEO_PATH debe apuntar al archivo local');
+  });
+
+  test('falla con error si la ruta local no existe', () => {
+    const env = makeEnv(ctx.dir, { DOWNLOAD_URL: '/no/existe/video.mp4' });
+    const result = runScript('download_video.cjs', env);
+    assert.notEqual(result.status, 0);
+    assert.ok(result.stderr.includes('Archivo no encontrado'));
+  });
 });
