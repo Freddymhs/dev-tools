@@ -1,0 +1,19 @@
+#!/bin/sh
+# fake whisper: genera un .txt vacío por cada archivo de entrada
+FILE=""
+OUTPUT_DIR="."
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --output_dir) OUTPUT_DIR="$2"; shift 2;;
+    --model|--output_format) shift 2;;
+    -*) shift;;
+    *) FILE="$1"; shift;;
+  esac
+done
+
+if [ -n "$FILE" ]; then
+  BASE=$(basename "$FILE" | sed 's/\.[^.]*$//')
+  mkdir -p "$OUTPUT_DIR"
+  echo "[fake-whisper] transcript de $BASE" > "$OUTPUT_DIR/$BASE.txt"
+fi

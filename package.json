@@ -1,11 +1,11 @@
 {
-  "name": "project-resume",
+  "name": "dev-tools",
   "version": "1.0.0",
-  "description": "Genera un RESUME.md con todo el código fuente de un proyecto — útil para compartir contexto con una IA o trabajar offline.",
+  "description": "Genera un BUNDLE.md con todo el código fuente de un proyecto — útil para compartir contexto con una IA o trabajar offline.",
   "scripts": {
-    "generate": "node generate_resume.cjs",
+    "generate": "node generate_bundle.cjs",
     "split": "node split_markdown.cjs",
-    "generate-splited": "node generate_resume.cjs && node split_markdown.cjs && rm output/code/1_raw/RESUME.md",
+    "generate-splited": "node generate_bundle.cjs && node split_markdown.cjs && node -e \"const{loadEnv}=require('./lib/env.cjs');loadEnv();const{CODE_RAW}=require('./lib/paths.cjs');require('fs').rmSync(require('path').join(CODE_RAW,'BUNDLE.md'),{force:true})\"",
     "download": "node download_video.cjs",
     "split-video": "node split_video.cjs",
     "transcript": "node transcript_video.cjs",
@@ -18,7 +18,7 @@
   },
   "keywords": [
     "ai-context",
-    "resume",
+    "bundle",
     "codebase",
     "offline"
   ],

@@ -19,4 +19,11 @@ if [ ! -f "long.mp4" ]; then
   echo "✅ long.mp4 listo"
 fi
 
+if [ ! -f "short.m4a" ]; then
+  echo "Creando short.m4a (3s)..."
+  ffmpeg -f lavfi -i "sine=frequency=440:duration=3" \
+         -c:a aac -t 3 short.m4a -y -loglevel error
+  echo "✅ short.m4a listo"
+fi
+
 echo "Fixtures de video listos."

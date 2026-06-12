@@ -47,6 +47,52 @@ describe('transcript_video.cjs', () => {
     assert.equal(txts.length, 2);
   });
 
+  test('transcribe audio (.m4a)', () => {
+    const ctx = createTestDir();
+    after(() => ctx.cleanup());
+
+    const partsDir = path.join(ctx.dir, 'media', '2_parts');
+    setupParts(partsDir, path.join(FIXTURES, 'short.m4a'));
+
+    const env = makeEnv(ctx.dir);
+    const result = runScript('transcript_video.cjs', env);
+
+    assert.equal(result.status, 0, `stderr: ${result.stderr}`);
+
+    const transcriptsDir = path.join(ctx.dir, 'media', '3_transcripts');
+    const txts = fs.readdirSync(transcriptsDir).filter(f => f.endsWith('.txt'));
+    assert.equal(txts.length, 1, 'Debe haber 1 transcript para el audio');
+  });
+
+  test('usa WHISPER_BIN si está definido (otro motor de transcripción)', () => {
+    const ctx = createTestDir();
+    after(() => ctx.cleanup());
+
+    const partsDir = path.join(ctx.dir, 'media', '2_parts');
+    setupParts(partsDir, path.join(FIXTURES, 'short.mp4'));
+
+    const env = makeEnv(ctx.dir, { WHISPER_BIN: 'fake-whisper-alt' });
+    const result = runScript('transcript_video.cjs', env);
+
+    assert.equal(result.status, 0, `stderr: ${result.stderr}`);
+    const txts = fs.readdirSync(path.join(ctx.dir, 'media', '3_transcripts')).filter(f => f.endsWith('.txt'));
+    assert.equal(txts.length, 1);
+  });
+
+  test('falla con mensaje claro si WHISPER_BIN no existe', () => {
+    const ctx = createTestDir();
+    after(() => ctx.cleanup());
+
+    const partsDir = path.join(ctx.dir, 'media', '2_parts');
+    setupParts(partsDir, path.join(FIXTURES, 'short.mp4'));
+
+    const env = makeEnv(ctx.dir, { WHISPER_BIN: 'no-existe-este-binario' });
+    const result = runScript('transcript_video.cjs', env);
+
+    assert.notEqual(result.status, 0);
+    assert.ok(result.stderr.includes('no-existe-este-binario'), `stderr: ${result.stderr}`);
+  });
+
   test('falla con mensaje claro si MEDIA_PARTS no existe', () => {
     const ctx = createTestDir();
     after(() => ctx.cleanup());

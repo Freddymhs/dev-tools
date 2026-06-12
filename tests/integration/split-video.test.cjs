@@ -65,6 +65,24 @@ describe('split_video.cjs', () => {
     assert.equal(stale, undefined, `El part viejo no fue eliminado: ${stale}`);
   });
 
+  test('audio (.m4a): copia como parte única en MEDIA_PARTS', () => {
+    const ctx = createTestDir();
+    after(() => ctx.cleanup());
+
+    const env = makeEnv(ctx.dir, {
+      VIDEO_PATH: path.join(FIXTURES, 'short.m4a'),
+      DEV_TOOLS_SPLIT_SECONDS: '60',
+    });
+    const result = runScript('split_video.cjs', env);
+
+    assert.equal(result.status, 0, `stderr: ${result.stderr}`);
+
+    const partsDir = path.join(ctx.dir, 'media', '2_parts');
+    const parts = fs.readdirSync(partsDir);
+    assert.equal(parts.length, 1, 'Debe haber exactamente 1 parte para audio corto');
+    assert.ok(parts[0].endsWith('.m4a'), `Extensión esperada .m4a, recibido: ${parts[0]}`);
+  });
+
   test('falla con mensaje claro si VIDEO_PATH no existe', () => {
     const ctx = createTestDir();
     after(() => ctx.cleanup());

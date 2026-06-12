@@ -2,16 +2,19 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { loadEnv } = require("./lib/env.cjs");
-const { MEDIA_PARTS, LAST_VIDEO } = require("./lib/paths.cjs");
-
-const MAX_SECONDS = parseInt(process.env.DEV_TOOLS_SPLIT_SECONDS, 10) || (25 * 60);
 
 loadEnv();
+
+const { MEDIA_PARTS, LAST_VIDEO } = require("./lib/paths.cjs");
+const { MEDIA_EXTENSIONS } = require("./lib/media.cjs");
+
+const MAX_SECONDS = parseInt(process.env.DEV_TOOLS_SPLIT_SECONDS, 10) || (25 * 60);
 
 const LAST_VIDEO_FILE = LAST_VIDEO;
 const PARTS_DIR = MEDIA_PARTS;
 
 const videoPath = (() => {
+  if (process.argv[2]) return process.argv[2];
   if (process.env.VIDEO_PATH) return process.env.VIDEO_PATH;
   if (fs.existsSync(LAST_VIDEO_FILE)) {
     const p = fs.readFileSync(LAST_VIDEO_FILE, "utf-8").trim();
@@ -35,9 +38,8 @@ if (!fs.existsSync(absolutePath)) {
 
 // Limpiar parts viejos antes de crear nuevos (evita acumulación entre runs)
 if (fs.existsSync(PARTS_DIR)) {
-  const VIDEO_EXT = new Set([".mp4", ".webm", ".mkv", ".avi", ".mov", ".m4v"]);
   fs.readdirSync(PARTS_DIR)
-    .filter((f) => VIDEO_EXT.has(path.extname(f).toLowerCase()))
+    .filter((f) => MEDIA_EXTENSIONS.has(path.extname(f).toLowerCase()))
     .forEach((f) => fs.unlinkSync(path.join(PARTS_DIR, f)));
 }
 fs.mkdirSync(PARTS_DIR, { recursive: true });

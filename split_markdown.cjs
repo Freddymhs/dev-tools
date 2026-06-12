@@ -2,9 +2,10 @@ const fs = require('fs');
 const readline = require('readline');
 const path = require('path');
 const { loadEnv } = require('./lib/env.cjs');
-const { CODE_RAW, CODE_PARTS } = require('./lib/paths.cjs');
 
 loadEnv();
+
+const { CODE_RAW, CODE_PARTS } = require('./lib/paths.cjs');
 
 async function splitMarkdown(inputFile, maxLines, outputDir) {
   if (!fs.existsSync(inputFile)) {
@@ -62,8 +63,8 @@ async function splitMarkdown(inputFile, maxLines, outputDir) {
 }
 
 const args = process.argv.slice(2);
-const defaultResume = path.join(CODE_RAW, 'RESUME.md');
-const inputFile = args[0] || defaultResume;
+const defaultBundle = path.join(CODE_RAW, 'BUNDLE.md');
+const inputFile = args[0] || defaultBundle;
 const maxLines = parseInt(args[1], 10) || 10000;
 const outputDir = args[0]
   ? path.dirname(inputFile)

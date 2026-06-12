@@ -12,6 +12,8 @@ Mejoras de UX y robustez una vez que el TUI core funciona. Ninguna es bloqueante
 
 ### Tarea 3.A: Hint de valor actual al pedir variables
 
+> ⚠️ **Revertida.** El refactor de `.env` (post-FASE_3) eliminó la persistencia de inputs por-corrida (`PROJECT_PATH`/`DOWNLOAD_URL`/`VIDEO_PATH`) en `.env.local` — el TUI los pasa directo al `spawn` sin tocar disco. Sin persistencia no hay "valor anterior" que mostrar, así que `askVar` ya no recibe `currentValue`/`initial`. Se mantiene marcada como completada porque así se cerró en su momento; este aviso documenta el cambio posterior.
+
 - Archivo: `lib/menu.cjs` (modificar)
 - Qué hacer: cuando `askVar` recibe un `currentValue`, mostrarlo como prefijo en el prompt
   - Con `prompts`: usar `initial: currentValue` en el `text()` — el usuario puede editarlo o hacer Enter para mantener

@@ -1,9 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const { loadEnv } = require('./lib/env.cjs');
-const { CODE_RAW } = require('./lib/paths.cjs');
 
 loadEnv();
+
+const { CODE_RAW } = require('./lib/paths.cjs');
 
 // ══════════════════════════════════════════════════════════════
 // Carpetas a ignorar (dependencias, builds, caches, VCS, etc.)
@@ -155,7 +156,7 @@ function walk(dir) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// Generación del RESUME.md
+// Generación del BUNDLE.md
 // ══════════════════════════════════════════════════════════════
 const args = process.argv.slice(2);
 const rootDir = args[0]
@@ -171,11 +172,11 @@ if (!fs.existsSync(rootDir)) {
 
 const allFiles = walk(rootDir);
 
-// No incluir el propio RESUME ni los scripts auxiliares en el resultado
+// No incluir el propio BUNDLE ni los scripts auxiliares en el resultado
 const filteredFiles = allFiles.filter(f => {
     const base = path.basename(f);
-    return base !== 'RESUME.md' && base !== 'generate_resume.cjs' && base !== 'split_markdown.cjs'
-        && !base.startsWith('RESUME_part');
+    return base !== 'BUNDLE.md' && base !== 'generate_bundle.cjs' && base !== 'split_markdown.cjs'
+        && !base.startsWith('BUNDLE_part');
 });
 
 const header = `# Resumen Completo del Proyecto — Modo Offline
@@ -247,7 +248,7 @@ const footer = `\n\n> **Líneas totales procesadas**: ${totalLinesProcessed}\n`;
 
 const OUTPUT_DIR = CODE_RAW;
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-fs.writeFileSync(path.join(OUTPUT_DIR, 'RESUME.md'), header + fileDetails + footer);
-console.log(`✅ RESUME.md generado con éxito.`);
+fs.writeFileSync(path.join(OUTPUT_DIR, 'BUNDLE.md'), header + fileDetails + footer);
+console.log(`✅ BUNDLE.md generado con éxito.`);
 console.log(`   📁 Archivos procesados: ${filteredFiles.length}`);
 console.log(`   📝 Líneas totales: ${totalLinesProcessed}`);

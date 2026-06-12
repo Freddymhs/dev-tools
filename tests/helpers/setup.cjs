@@ -53,16 +53,4 @@ const runScript = (scriptName, env) =>
     cwd: ROOT,
   });
 
-/** Escribe un .env.local mínimo en el ROOT (lo limpia después del test) */
-const writeEnvLocal = (vars = {}) => {
-  const envPath = path.join(ROOT, '.env.local');
-  const backup = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : null;
-  const content = Object.entries(vars).map(([k, v]) => `${k}=${v}`).join('\n');
-  fs.writeFileSync(envPath, content, 'utf8');
-  return () => {
-    if (backup !== null) fs.writeFileSync(envPath, backup, 'utf8');
-    else if (fs.existsSync(envPath)) fs.unlinkSync(envPath);
-  };
-};
-
-module.exports = { createTestDir, makeEnv, runScript, writeEnvLocal, ROOT, FIXTURES };
+module.exports = { createTestDir, makeEnv, runScript, ROOT, FIXTURES };

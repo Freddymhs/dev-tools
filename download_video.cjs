@@ -1,15 +1,16 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const { loadEnv, setVar } = require("./lib/env.cjs");
-const { MEDIA_DOWNLOADS, LAST_VIDEO } = require("./lib/paths.cjs");
+const { loadEnv } = require("./lib/env.cjs");
 
 loadEnv();
 
-const url = process.env.DOWNLOAD_URL;
+const { MEDIA_DOWNLOADS, LAST_VIDEO } = require("./lib/paths.cjs");
+
+const url = process.argv[2] || process.env.DOWNLOAD_URL;
 
 if (!url) {
-  console.error("Falta DOWNLOAD_URL en .env.local");
+  console.error("Falta URL: pasar como argumento o variable DOWNLOAD_URL");
   process.exit(1);
 }
 
@@ -24,7 +25,6 @@ if (isLocalFile) {
   }
   const videoPath = path.resolve(url);
   fs.writeFileSync(LAST_VIDEO_FILE, videoPath);
-  setVar("VIDEO_PATH", videoPath);
   console.log(`📌 Video local registrado: ${path.basename(videoPath)}`);
   process.exit(0);
 }
@@ -71,7 +71,6 @@ const resolveDownloadedPath = () => {
 const videoPath = resolveDownloadedPath();
 if (videoPath) {
   fs.writeFileSync(LAST_VIDEO_FILE, videoPath);
-  setVar("VIDEO_PATH", videoPath);
   console.log(`📌 Video listo: ${path.basename(videoPath)}`);
 }
 
