@@ -9,6 +9,7 @@
 | [FASE_2](FASE_2_TUI_ORQUESTADOR.md) | TUI — Orquestador | ✅ COMPLETADA | 4 |
 | [FASE_3](FASE_3_TUI_POLISH.md) | TUI — Polish | ✅ COMPLETADA | 3 |
 | [FASE_4](FASE_4_TRANSCRIBER_ADAPTERS.md) | Transcripción — Adapters intercambiables | 📋 Backlog | 3 |
+| [FASE_5](FASE_5_SLICE_BUNDLE.md) | Bundle por slice — estudiar fragmento + dependencias (vía CodeGraph CLI) | 📋 Backlog | 5 |
 
 ## Diagramas de Referencia
 
